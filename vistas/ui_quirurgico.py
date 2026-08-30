@@ -1,5 +1,6 @@
 import streamlit as st
-from logica.scores_quirurgicos import calcular_ariscat, clasificar_riesgo_ariscat
+# Fíjate que ahora también importamos Torrington en esta línea:
+from logica.scores_quirurgicos import calcular_ariscat, clasificar_riesgo_ariscat, calcular_torrington, clasificar_riesgo_torrington
 
 def renderizar_tab_quirurgico():
     st.header("Evaluación de Riesgo Quirúrgico")
@@ -43,4 +44,35 @@ def renderizar_tab_quirurgico():
 
     with sub2:
         st.subheader("Escala Torrington-Henderson")
-        st.info("🚧 Calculadora Torrington en desarrollo...")
+        st.write("Estratificación de riesgo basada en clínica y espirometría prequirúrgica.")
+        
+        with st.form("form_torrington"):
+            st.write("**Seleccione los factores presentes (Checklist):**")
+            col_t1, col_t2 = st.columns(2)
+            
+            with col_t1:
+                fvc_baja = st.checkbox("FVC < 50% del valor predicho (1 pt)")
+                relacion_baja = st.checkbox("FEV1/FVC < 65% (1 pt)")
+                edad_mayor = st.checkbox("Edad > 65 años (1 pt)")
+                obesidad = st.checkbox("Obesidad (IMC > 27) (1 pt)")
+                
+            with col_t2:
+                tabaquismo = st.checkbox("Tabaquismo activo o historia reciente (1 pt)")
+                sintomas = st.checkbox("Síntomas respiratorios (Tos / Expectoración) (1 pt)")
+                cirugia_riesgo = st.checkbox("Cirugía intratorácica o abdominal alta (2 pts)")
+                
+            calcular_btn_t = st.form_submit_button("Calcular Score Torrington")
+            
+        if calcular_btn_t:
+            score_t = calcular_torrington(fvc_baja, relacion_baja, edad_mayor, obesidad, tabaquismo, sintomas, cirugia_riesgo)
+            riesgo_t, tasa_t, color_t = clasificar_riesgo_torrington(score_t)
+            
+            st.write("---")
+            st.markdown(f"### Puntuación Total: **{score_t} puntos**")
+            
+            if color_t == "success":
+                st.success(f"**Clasificación: {riesgo_t}**\n\n{tasa_t}")
+            elif color_t == "warning":
+                st.warning(f"**Clasificación: {riesgo_t}**\n\n{tasa_t}")
+            else:
+                st.error(f"**Clasificación: {riesgo_t}**\n\n{tasa_t}")
