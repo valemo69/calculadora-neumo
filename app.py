@@ -1,14 +1,14 @@
 import streamlit as st
 import os
 
-# Importamos las vistas que creamos en los otros archivos
+# Importamos las vistas de cada sección
 from vistas.ui_vni import renderizar_seccion_vni, renderizar_seccion_cnaf
 from vistas.ui_quirurgico import renderizar_tab_quirurgico
+from vistas.ui_calculadoras import renderizar_tab_calculadoras
 
 st.set_page_config(page_title="Cetrángolo NeumoCheck", page_icon="🫁", layout="centered")
 
 def mostrar_cabecera():
-    # Usamos el nombre exacto de la imagen que tienes en el repo
     if os.path.exists("Logo Cetra.png"):
         st.image("Logo Cetra.png", width=140)
         
@@ -18,7 +18,6 @@ def mostrar_cabecera():
     st.info("⚠️ Recordatorio: No ingrese datos filiatorios del paciente (Nombres, DNI). Solo variables clínicas anónimas.")
 
 def mostrar_creditos():
-    # Agrega una firma elegante en el menú lateral
     st.sidebar.markdown("---")
     st.sidebar.markdown("👩‍💻 **Desarrollado por: Valeria Morandi**")
     st.sidebar.caption("Versión 1.0 | 2026")
@@ -38,9 +37,9 @@ def renderizar_tab_guia():
 
 def main():
     mostrar_cabecera()
-    mostrar_creditos() # <--- Llamamos a tu firma aquí
+    mostrar_creditos()
     
-    # Creamos las pestañas principales
+    # Creamos las tres pestañas principales de la app
     tab_guia, tab_quirurgico, tab_calculadoras = st.tabs([
         "🛟 Guía VNI / Alto Flujo", 
         "🩺 Riesgo Quirúrgico", 
@@ -54,7 +53,7 @@ def main():
         renderizar_tab_quirurgico()
         
     with tab_calculadoras:
-        st.info("🚧 Calculadoras de Sala en desarrollo...")
+        renderizar_tab_calculadoras()
 
 if __name__ == "__main__":
     main()
