@@ -21,7 +21,18 @@ def mostrar_creditos():
     st.sidebar.markdown("---")
     st.sidebar.markdown("👩‍💻 **Desarrollado por: Valeria Morandi**")
     st.sidebar.caption("Versión 1.0 | 2026")
-    st.sidebar.caption("Herramienta de asistencia clínica.")
+    st.sidebar.caption("Herramientas de asistencia clínica.")
+    
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("📱 Escanear App")
+    st.sidebar.write("Escanee el código para abrir la app en el celular:")
+    
+    # URL oficial de tu aplicación en Streamlit Cloud
+    url_app = "https://calculadora-neumogit-fci7gubv3hxhlwgfizihx5.streamlit.app/"
+    
+    # Generador automático de QR mediante imagen web segura
+    url_qr = f"https://api.qrserver.com/v1/create-qr-code/?size=180x180&data={url_app}"
+    st.sidebar.image(url_qr, width=160)
 
 def renderizar_tab_guia():
     st.header("📋 Protocolo de Soporte No Invasivo en Guardia")
