@@ -51,6 +51,24 @@ def calcular_deficit_agua_libre(peso, sexo, edad, na_actual):
 def calcular_calcio_corregido(calcio_ionico, albumina):
     return calcio_ionico + 0.8 * (4.0 - albumina)
 
+
+# ==========================================
+# REPOSICIÓN DE POTASIO (Hipokalemia)
+# ==========================================
+def calcular_deficit_potasio(k_actual):
+    # Regla práctica clínica de sala general:
+    # K 3.0 - 3.4: Faltan aprox 100-200 mEq
+    # K 2.5 - 2.9: Faltan aprox 200-300 mEq
+    # K < 2.5: Faltan aprox 300-400 mEq (Vía central / precaución)
+    if k_actual >= 3.5:
+        return 0, "Potasio normal. No requiere reposición."
+    elif k_actual >= 3.0:
+        return 100, "Déficit estimado: ~100 mEq. Se sugiere aportar 40-60 mEq/día vía oral o periférica."
+    elif k_actual >= 2.5:
+        return 200, "Déficit estimado: ~200-300 mEq. Evaluar aporte intravenoso controlado (máx 10-20 mEq/h por vía periférica)."
+    else:
+        return 400, "Déficit estimado: ~400 mEq o más. ¡Atención! Riesgo arritmogénico severo. Reposición prudente, control estricto y considerar vía central."
+
 # ==========================================
 # TROMBOEMBOLISMO PULMONAR (TEP)
 # ==========================================
