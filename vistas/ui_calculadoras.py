@@ -61,7 +61,23 @@ def renderizar_tab_calculadoras():
     with sub3:
         st.subheader("Reposición de Electrolitos y Correcciones")
         
-        with st.expander("🧂 Déficit de Sodio y Agua Libre", expanded=True):
+        # Déficit de Potasio (¡Nuevo!)
+        with st.expander("🍌 Déficit y Reposición de Potasio (K)", expanded=True):
+            with st.form("form_potasio"):
+                k_actual = st.number_input("Potasio sérico medido (mEq/L):", min_value=1.5, max_value=6.0, value=3.2, step=0.1)
+                st.caption("Recuerde: Vía periférica infundir a máx 10-20 mEq/h para evitar flebitis y dolor.")
+                
+                if st.form_submit_button("Calcular Déficit de Potasio"):
+                    st.write("---")
+                    pts_k, conducta_k = calcular_deficit_potasio(k_actual)
+                    if k_actual >= 3.5:
+                        st.success(f"### 🟢 {conducta_k}")
+                    elif k_actual >= 3.0:
+                        st.warning(f"### ⚠️ Hipokalemia Leve\n- {conducta_k}")
+                    else:
+                        st.error(f"### 🚨 Hipokalemia Moderada / Severa\n- {conducta_k}")
+
+        with st.expander("🧂 Déficit de Sodio y Agua Libre"):
             with st.form("form_sodio"):
                 col_n1, col_n2 = st.columns(2)
                 with col_n1:
@@ -95,9 +111,11 @@ def renderizar_tab_calculadoras():
                 with c2:
                     albumina = st.number_input("Albúmina sérica (g/dL):", min_value=1.0, max_value=6.0, value=2.5, step=0.1)
                 
-                if st.form_submit_button("Calcular Calcio Corregido"):
+                if st.form_submit_button("Calcio Corregido"):
                     ca_corregido = calcular_calcio_corregido(calcio_medido, albumina)
                     st.info(f"### Calcio Real Corregido: **{ca_corregido:.2f} mg/dL**")
+
+    
 
     # ==========================================
     # PESTAÑA 4: TEP (WELLS Y SPESI)
