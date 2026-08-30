@@ -17,6 +17,13 @@ def mostrar_cabecera():
     st.caption("Guía de Decisiones de Guardia y Soporte Respiratorio - Sala General (No UTI)")
     st.info("⚠️ Recordatorio: No ingrese datos filiatorios del paciente (Nombres, DNI). Solo variables clínicas anónimas.")
 
+def mostrar_creditos():
+    # Agrega una firma elegante en el menú lateral
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("👩‍💻 **Desarrollado por: Valeria Morandi**")
+    st.sidebar.caption("Versión 1.0 | 2026")
+    st.sidebar.caption("Herramienta de asistencia clínica.")
+
 def renderizar_tab_guia():
     st.header("📋 Protocolo de Soporte No Invasivo en Guardia")
     st.write("Asistente paso a paso para disminuir errores en el piso de internación.")
@@ -31,6 +38,7 @@ def renderizar_tab_guia():
 
 def main():
     mostrar_cabecera()
+    mostrar_creditos() # <--- Llamamos a tu firma aquí
     
     # Creamos las pestañas principales
     tab_guia, tab_quirurgico, tab_calculadoras = st.tabs([
