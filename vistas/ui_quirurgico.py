@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 from logica.scores_quirurgicos import calcular_ariscat, clasificar_riesgo_ariscat, calcular_torrington, clasificar_riesgo_torrington
 
 def renderizar_tab_quirurgico():
@@ -106,7 +107,39 @@ def renderizar_tab_quirurgico():
                 
                 otros_comentarios = st.text_area("Observaciones adicionales:")
 
-            st.info("💡 **Presione Ctrl + P** (o Cmd + P en Mac) para imprimir el siguiente reporte y adjuntarlo a la HC.")
+           st.info("💡 **En PC:** Presione Ctrl + P. **En Celular:** Toque el botón azul de abajo.")
+            
+            # Botón de impresión nativo usando JavaScript (Ideal para móviles)
+            components.html(
+                """
+                <script>
+                function imprimir() {
+                    window.parent.print();
+                }
+                </script>
+                <div style="display: flex; justify-content: center; margin-top: 10px;">
+                    <button onclick="imprimir()" style="
+                        background-color: #4f8bf9;
+                        color: white;
+                        padding: 12px 24px;
+                        border: none;
+                        border-radius: 8px;
+                        font-size: 16px;
+                        font-weight: bold;
+                        cursor: pointer;
+                        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                        width: 100%;
+                        max-width: 400px;
+                    ">
+                        🖨️ Tocar aquí para Imprimir / Guardar PDF
+                    </button>
+                </div>
+                """,
+                height=70
+            )
+            
+            # Formato visual de Reporte Médico (HTML y CSS)
+            lista_sugerencias_html = "".join([f"<li>{s}</li>" for s in sugerencias])
             
             # Formato visual de Reporte Médico (HTML y CSS)
             lista_sugerencias_html = "".join([f"<li>{s}</li>" for s in sugerencias])
