@@ -1,7 +1,8 @@
 import streamlit as st
 import streamlit.components.v1 as components
-import base64
 from logica.scores_quirurgicos import calcular_ariscat, clasificar_riesgo_ariscat, calcular_torrington, clasificar_riesgo_torrington
+# Importamos nuestras nuevas funciones de plantilla
+from vistas.plantilla_reporte import generar_html_reporte, generar_boton_impresion
 
 def renderizar_tab_quirurgico():
     st.header("Evaluación de Riesgo Quirúrgico")
@@ -71,7 +72,7 @@ def renderizar_tab_quirurgico():
     # ==========================================
     with sub3:
         st.subheader("🖨️ Generación de Reporte Neumonológico")
-        st.write("Imprima los scores calculados, o genere una planilla con los datos del paciente para completar a mano.")
+        st.write("Imprima los scores calculados, o genere una planilla en blanco.")
         st.warning("Los datos ingresados aquí son efímeros: NO se guardan en ninguna base de datos.")
         
         with st.form("form_datos_paciente"):
@@ -99,75 +100,30 @@ def renderizar_tab_quirurgico():
             otros_comentarios = st.text_area("Observaciones adicionales:")
             st.form_submit_button("Aplicar Datos al Reporte")
 
-        # --- CONSTRUCCIÓN DINÁMICA DEL REPORTE ---
+        # --- CONSTRUCCIÓN DINÁMICA DEL REPORTE (Llamando a la plantilla) ---
         lista_sugerencias_html = "".join([f"<li>{s}</li>" for s in sugerencias])
         
-        # Verificamos qué scores fueron calculados para sumarlos al HTML
         html_ariscat = ""
         if 'score_a' in st.session_state:
             score_a = st.session_state['score_a']
             riesgo_a, tasa_a, _ = clasificar_riesgo_ariscat(score_a)
-            html_ariscat = f"""
-            <p><strong><u>ESCALA CLÍNICA (ARISCAT):</u></strong></p>
-            <p><strong>Puntuación:</strong> {score_a} puntos - <strong>{riesgo_a}</strong> <em>({tasa_a})</em></p>
-            <br>
-            """
+            html_ariscat = f"""<p><strong><u>ESCALA CLÍNICA (ARISCAT):</u></strong></p>
+                               <p><strong>Puntuación:</strong> {score_a} puntos - <strong>{riesgo_a}</strong> <em>({tasa_a})</em></p><br>"""
             
         html_torrington = ""
         if 'score_t' in st.session_state:
             score_t = st.session_state['score_t']
             riesgo_t, tasa_t, _ = clasificar_riesgo_torrington(score_t)
-            html_torrington = f"""
-            <p><strong><u>ESCALA ESPIROMÉTRICA (TORRINGTON-HENDERSON):</u></strong></p>
-            <p><strong>Puntuación:</strong> {score_t} puntos - <strong>{riesgo_t}</strong> <em>(Riesgo Estimado: {tasa_t})</em></p>
-            <br>
-            """
+            html_torrington = f"""<p><strong><u>ESCALA ESPIROMÉTRICA (TORRINGTON-HENDERSON):</u></strong></p>
+                                  <p><strong>Puntuación:</strong> {score_t} puntos - <strong>{riesgo_t}</strong> <em>(Riesgo Estimado: {tasa_t})</em></p><br>"""
 
-        # Armamos la estructura final
-        html_reporte = f"""
-        <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; border: 2px solid #4f8bf9; padding: 20px; border-radius: 10px; background-color: white; color: black;">
-            <h3 style="text-align: center; margin-top: 0; color: #1e3d59;">Evaluación Neumonológica Prequirúrgica</h3>
-            <hr style="border-top: 2px solid #4f8bf9;">
-            <p><strong>Paciente:</strong> {nombre if nombre else '_________________________'} &nbsp;&nbsp;&nbsp; <strong>DNI/HC:</strong> {dni if dni else '________________'}</p>
-            <p><strong>Fecha:</strong> {fecha_eval}</p>
-            <br>
-            {html_ariscat}
-            {html_torrington}
-            <p><strong><u>SUGERENCIAS E INDICACIONES:</u></strong></p>
-            <ul>{lista_sugerencias_html}</ul>
-            <p><strong>Observaciones:</strong> {otros_comentarios if otros_comentarios else 'Ninguna.'}</p>
-            <br><br><br>
-            <p style="text-align: right;"><em>Firma y Sello del Profesional: ___________________________</em></p>
-        </div>
-        """
+        # 1. Generamos el HTML completo usando nuestra nueva función
+        html_reporte = generar_html_reporte(nombre, dni, fecha_eval, html_ariscat, html_torrington, lista_sugerencias_html, otros_comentarios)
         
-        # Mostramos la previsualización en la web
-        st.markdown(html_reporte, unsafe_allow_html=True)
+        # 2. Mostramos el recuadro aislado (para que no rompa el diseño de la app)
+        components.html(html_reporte, height=450, scrolling=True)
         
-        # --- MAGIA DE IMPRESIÓN LIMPIA ---
+        # 3. Generamos el botón de imprimir mágico usando la otra función
         st.info("💡 **Listo para imprimir:** Haga clic en el botón azul para generar el documento oficial.")
-        
-        b64_html = base64.b64encode(html_reporte.encode('utf-8')).decode('utf-8')
-        javascript_print = f"""
-        <script>
-        function imprimirLimpio() {{
-            const b64 = "{b64_html}";
-            const decoded_html = decodeURIComponent(escape(window.atob(b64)));
-            const ventana = window.open('', '_blank');
-            ventana.document.write('<html><head><title>Reporte Médico</title></head><body>');
-            ventana.document.write(decoded_html);
-            ventana.document.write('</body></html>');
-            ventana.document.close();
-            setTimeout(function() {{
-                ventana.print();
-                ventana.close();
-            }}, 250);
-        }}
-        </script>
-        <div style="display: flex; justify-content: center; margin-top: 20px;">
-            <button onclick="imprimirLimpio()" style="background-color: #4f8bf9; color: white; padding: 12px 24px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 400px;">
-            🖨️ Imprimir / Guardar PDF
-            </button>
-        </div>
-        """
-        components.html(javascript_print, height=80)
+        boton_impresion = generar_boton_impresion(html_reporte)
+        components.html(boton_impresion, height=80)
